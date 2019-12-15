@@ -1,56 +1,71 @@
 // very simple 3d vector utility
-// TODO: typescript this
 
-export default function Vec3(x, y, z) {
-	this.x = x;
-	this.y = y;
-	this.z = z;
-}
+class Vec3 {
+	x: number;
+	y: number;
+	z: number;
 
-Vec3.prototype = {
-	length() {
-		return (this.x ** 2 + this.y ** 2 + this.z ** 2) ** 0.5;
-	},
-	add(other) {
+	constructor(x: number, y: number, z: number) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
+	length(): number {
+		return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2);
+	}
+
+	add(other: Vec3): Vec3 {
 		return new Vec3(this.x + other.x, this.y + other.y, this.z + other.z);
-	},
-	multiplyScalar(scalar) {
+	}
+
+	multiplyScalar(scalar: number): Vec3 {
 		return new Vec3(this.x * scalar, this.y * scalar, this.z * scalar);
-	},
-	dot(other) {
+	}
+
+	dot(other: Vec3): number {
 		return this.x * other.x + this.y * other.y + this.z * other.z;
-	},
-	cross(other) {
+	}
+
+	cross(other: Vec3): Vec3 {
 		return new Vec3(
 			this.y * other.z - this.z * other.y,
 			this.z * other.x - this.x * other.z,
 			this.x * other.y - this.y * other.x,
 		);
-	},
-	average(other) {
+	}
+
+	average(other: Vec3): Vec3 {
 		return new Vec3(
 			(this.x + other.x) / 2,
 			(this.y + other.y) / 2,
 			(this.z + other.z) / 2,
 		);
-	},
-	rotateAroundAxis(axis, angle) {
+	}
+
+	rotateAroundAxis(axis: Vec3, angle: number): Vec3 {
 		// rodriguez method
 		const term1 = this.multiplyScalar(Math.cos(angle));
 		const term2 = this.cross(axis).multiplyScalar(Math.sin(angle));
 		const term3 = axis.multiplyScalar(Math.cos(1 - angle) * this.dot(axis));
 		return term1.add(term2).add(term3);
-	},
-	normalize() {
+	}
+
+	normalize(): Vec3 {
 		return this.multiplyScalar(1 / this.length());
-	},
-	xAngle() {
+	}
+
+	xAngle(): number {
 		return Math.atan2(Math.sqrt(this.y ** 2 + this.z  ** 2), this.x);
-	},
-	yAngle() {
+	}
+
+	yAngle(): number {
 		return Math.atan2(Math.sqrt(this.z ** 2 + this.x  ** 2), this.y);
-	},
-	zAngle() {
+	}
+
+	zAngle(): number {
 		return Math.atan2(Math.sqrt(this.x ** 2 + this.y  ** 2), this.z);
-	},
-};
+	}
+}
+
+export default Vec3;

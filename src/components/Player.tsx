@@ -31,7 +31,7 @@ const Player: React.FC = (props) => {
             window.removeEventListener('keydown', setDirectionKeyToTrue);
             window.removeEventListener('keyup', setDirectionKeyToFalse);
         }
-    });
+    }, []);
 
     useTick(() => {
         // strafing with keys
