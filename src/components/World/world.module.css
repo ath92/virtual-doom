@@ -1,0 +1,6 @@
+.floor {
+    background-color: red;
+    height: 1000px;
+    transform: rotateX(90deg); /* horizontal */
+    width: 1000px;
+}
