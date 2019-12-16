@@ -5,7 +5,7 @@ import useTick from '../../hooks/useTick';
 import styles from './Player.module.css';
 
 const up = new Vec3(0, -1, 0); // -1 for y because browsers have origin at the top of the screen
-const playerHeight = up.multiplyScalar(window.innerHeight * -0.5); // negative because again, up is negative
+const playerHeight = 120; // negative because again, up is negative
 // This is based off of the perspective css property, basically controls FOV
 // , but also the depth of the view frustum, so it's important to reuse this when computing the transformOrigin
 const perspective = 750;
@@ -47,7 +47,7 @@ const Player: React.FC = (props) => {
     // change direction based on mouseMove
     useEffect(() => {
         const onMouseMove = (e: MouseEvent) => {
-            setDirection(d => d.rotateAroundAxis(up, (e.clientX - mouseX) * mouseSensitivity));
+            setDirection(d => d.rotateAroundAxis(up, (mouseX - e.clientX) * mouseSensitivity));
             setMouseX(e.clientX);
         }
         window.addEventListener('mousemove', onMouseMove);
@@ -66,12 +66,11 @@ const Player: React.FC = (props) => {
 
     useTick(updatePosition);
 
-    const cameraPosition = position.add(playerHeight);
-    const rotation = (direction.x > 0 ? 1 : -1) * direction.zAngle()  * 180 / Math.PI - 180;
+    const rotation = (direction.x > 0 ? -1 : 1) * direction.zAngle()  * 180 / Math.PI - 180;
 
     const playerTransformStyle = {
         transform: `
-            translate3d(${cameraPosition.x}px, ${cameraPosition.y}px, ${cameraPosition.z}px)
+            translate3d(${-position.x}px, ${-position.y + playerHeight}px, ${-position.z}px)
             rotateY(${rotation}deg)
         `,
         transformOrigin: `calc(50% + ${position.x}px)
@@ -83,7 +82,7 @@ const Player: React.FC = (props) => {
     return (
         <div style={perspectiveStyle} className={styles.scene}>
             <div style={playerTransformStyle} className={styles.player}>
-                <TransformContext.Provider value={{ translate: cameraPosition }}>
+                <TransformContext.Provider value={{ translate: position }}>
                     {props.children}
                 </TransformContext.Provider>
             </div>
