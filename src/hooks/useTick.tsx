@@ -1,17 +1,21 @@
 import { useEffect } from 'react';
 
+let callbacks = Array<() => void>();
+
+const loop = () => {
+	callbacks.forEach(c => c());
+	requestAnimationFrame(loop);
+};
+
+loop();
+
 const useTick = (callback: () => void) => {
-    useEffect(() => {
-        let keepGoing = true;
-        const wrapper = () => {
-            callback();
-            if (keepGoing) requestAnimationFrame(wrapper);
-        }
-        wrapper();
-        return () => {
-            keepGoing = false;
-        }
-    }, [callback]);
-}
+	useEffect(() => {
+		callbacks.push(callback);
+		return () => {
+			callbacks = callbacks.filter(c => c !== callback);
+		};
+	}, [callback]);
+};
 
 export default useTick;
