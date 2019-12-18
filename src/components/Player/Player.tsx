@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Vec3 from '../../util/Vec3';
 import TransformContext from '../../context/TransformContext';
 import useTick from '../../hooks/useTick';
+import { vec3, mat4 } from 'gl-matrix';
 import styles from './Player.module.css';
 
-const up = new Vec3(0, -1, 0); // -1 for y because browsers have origin at the top of the screen
+// const up = new Vec3(0, -1, 0); // -1 for y because browsers have origin at the top of the screen
 const playerHeight = 120; // negative because again, up is negative
 // This is based off of the perspective css property, basically controls FOV
 // , but also the depth of the view frustum, so it's important to reuse this when computing the transformOrigin
@@ -12,11 +12,15 @@ const perspective = 750;
 const speed = 30;
 const mouseSensitivity = 0.05;
 
+const forward = vec3.fromValues(0, 0, 1);
+const rotateLeft = mat4.fromYRotation(mat4.create(), 0.5 * Math.PI);
+const rotateRight = mat4.fromYRotation(mat4.create(), -0.5 * Math.PI);
+
 // TODO: transform origin stuff
 
 const Player: React.FC = props => {
-	const [position, setPosition] = useState(new Vec3(0, 0, 0));
-	const [direction, setDirection] = useState(new Vec3(0, 0, 1)); // start with forward, will be changed on mousemove
+	const [position, setPosition] = useState(vec3.fromValues(0, 0, 0));
+	const [direction, setDirection] = useState(vec3.fromValues(0, 0, 1)); // start with forward, will be changed on mousemove
 	const [directionKeys, setDirectionKeys] = useState({
 		forward: false,
 		backward: false,
@@ -54,30 +58,33 @@ const Player: React.FC = props => {
 	}, [mouseX]);
 
 	const updatePosition = useCallback(() => {
-		setDirection(d => d.rotateAroundAxis(up, mouseX.current.speed * mouseSensitivity));
+		const directionRotationMatrix = mat4.create();
+		setDirection(d => vec3.transformMat4(vec3.create(), d, mat4.fromYRotation(directionRotationMatrix, mouseX.current.speed * mouseSensitivity)));
+		// setDirection(d => d.rotateAroundAxis(up, mouseX.current.speed * mouseSensitivity));
 		mouseX.current.speed = 0;
 
-		const deltaPosition = direction.multiplyScalar(speed);
+		const deltaPosition = vec3.scale(vec3.create(), direction, speed);
 
 		// strafing with keys
-		if (directionKeys.forward) setPosition(p => p.add(deltaPosition));
-		if (directionKeys.backward) setPosition(p => p.add(deltaPosition.multiplyScalar(-1)));
-		if (directionKeys.left) setPosition(p => p.add(deltaPosition.rotateAroundAxis(up, 0.5 * Math.PI)));
-		if (directionKeys.right) setPosition(p => p.add(deltaPosition.rotateAroundAxis(up, -0.5 * Math.PI)));
+		const p2 = vec3.create();
+		if (directionKeys.forward) setPosition(p => vec3.add(p2, p, deltaPosition));
+		if (directionKeys.backward) setPosition(p => vec3.add(p2, p, vec3.negate(vec3.create(), deltaPosition)));
+		if (directionKeys.left) setPosition(p => vec3.add(p2, p, vec3.transformMat4(vec3.create(), deltaPosition, rotateLeft)));
+		if (directionKeys.right) setPosition(p => vec3.add(p2, p, vec3.transformMat4(vec3.create(), deltaPosition, rotateRight)));
 	}, [directionKeys, direction, setDirection]);
 
 	useTick(updatePosition);
 
-	const rotation = ((direction.x > 0 ? -1 : 1) * direction.zAngle() * 180) / Math.PI - 180;
+	const rotation = ((direction[0] > 0 ? -1 : 1) * vec3.angle(direction, forward) * 180) / Math.PI - 180;
 
 	const playerTransformStyle = {
 		transform: `
-            translate3d(${-position.x}px, ${-position.y + playerHeight}px, ${-position.z}px)
+            translate3d(${-position[0]}px, ${-position[1] + playerHeight}px, ${-position[2]}px)
             rotateY(${rotation}deg)
         `,
-		transformOrigin: `calc(50% + ${position.x}px)
-                          calc(50% + ${position.y}px) 
-                          ${position.z + perspective}px`
+		transformOrigin: `calc(50% + ${position[0]}px)
+                          calc(50% + ${position[1]}px) 
+                          ${position[2] + perspective}px`
 	};
 	const perspectiveStyle = { perspective: `${perspective}px` };
 
