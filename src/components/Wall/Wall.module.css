@@ -1,0 +1,8 @@
+.wall {
+    background-color: green;
+    height: 1000px;
+    position: absolute;
+    transform-origin: middle;
+    transform-style: preserve-3d;
+    width: 1000px;
+}

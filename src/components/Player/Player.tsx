@@ -76,10 +76,11 @@ const Player: React.FC = props => {
 
 	const rotation = ((direction[0] > 0 ? -1 : 1) * vec3.angle(direction, forward)) - Math.PI;
 
+	// negate because we're actually moving the whole world, not the player
 	const negativePosition = vec3.negate(vec3.create(), position);
 	const playerTransform = mat4.create();
-	mat4.translate(playerTransform, playerTransform, negativePosition);
-	mat4.rotateY(playerTransform, playerTransform, rotation);
+	mat4.translate(playerTransform, playerTransform, negativePosition); // first translate
+	mat4.rotateY(playerTransform, playerTransform, rotation); // then rotate
 
 	const playerTransformStyle = {
 		transform: `matrix3d(${playerTransform.join(',')})`,
