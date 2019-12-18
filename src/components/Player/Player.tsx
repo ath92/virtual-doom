@@ -4,6 +4,8 @@ import useTick from '../../hooks/useTick';
 import { vec3, mat4 } from 'gl-matrix';
 import styles from './Player.module.css';
 
+// TODO: clean up maths in here
+
 // const up = new Vec3(0, -1, 0); // -1 for y because browsers have origin at the top of the screen
 const playerHeight = 120; // negative because again, up is negative
 // This is based off of the perspective css property, basically controls FOV
@@ -15,8 +17,6 @@ const mouseSensitivity = 0.05;
 const forward = vec3.fromValues(0, 0, 1);
 const rotateLeft = mat4.fromYRotation(mat4.create(), 0.5 * Math.PI);
 const rotateRight = mat4.fromYRotation(mat4.create(), -0.5 * Math.PI);
-
-// TODO: transform origin stuff
 
 const Player: React.FC = props => {
 	const [position, setPosition] = useState(vec3.fromValues(0, 0, 0));
@@ -60,7 +60,6 @@ const Player: React.FC = props => {
 	const updatePosition = useCallback(() => {
 		const directionRotationMatrix = mat4.create();
 		setDirection(d => vec3.transformMat4(vec3.create(), d, mat4.fromYRotation(directionRotationMatrix, mouseX.current.speed * mouseSensitivity)));
-		// setDirection(d => d.rotateAroundAxis(up, mouseX.current.speed * mouseSensitivity));
 		mouseX.current.speed = 0;
 
 		const deltaPosition = vec3.scale(vec3.create(), direction, speed);
@@ -75,13 +74,15 @@ const Player: React.FC = props => {
 
 	useTick(updatePosition);
 
-	const rotation = ((direction[0] > 0 ? -1 : 1) * vec3.angle(direction, forward) * 180) / Math.PI - 180;
+	const rotation = ((direction[0] > 0 ? -1 : 1) * vec3.angle(direction, forward)) - Math.PI;
+
+	const negativePosition = vec3.negate(vec3.create(), position);
+	const playerTransform = mat4.create();
+	mat4.translate(playerTransform, playerTransform, negativePosition);
+	mat4.rotateY(playerTransform, playerTransform, rotation);
 
 	const playerTransformStyle = {
-		transform: `
-            translate3d(${-position[0]}px, ${-position[1] + playerHeight}px, ${-position[2]}px)
-            rotateY(${rotation}deg)
-        `,
+		transform: `matrix3d(${playerTransform.join(',')})`,
 		transformOrigin: `calc(50% + ${position[0]}px)
                           calc(50% + ${position[1]}px) 
                           ${position[2] + perspective}px`
@@ -91,7 +92,9 @@ const Player: React.FC = props => {
 	return (
 		<div style={perspectiveStyle} className={styles.scene}>
 			<div style={playerTransformStyle} className={styles.player}>
-				<TransformContext.Provider value={{ translate: position }}>{props.children}</TransformContext.Provider>
+				<TransformContext.Provider value={playerTransform}>
+					{props.children}
+				</TransformContext.Provider>
 			</div>
 		</div>
 	);

@@ -1,16 +1,16 @@
 import React, { useContext } from 'react';
-import Vec3 from '../../util/Vec3';
-import TransformContext, { localToWorld } from '../../context/TransformContext';
+import { mat4 } from 'gl-matrix';
+import TransformContext from '../../context/TransformContext';
 
 interface Props {
-    translate: Vec3,
+    value: mat4,
 }
 
-const Transform: React.FC<Props> = ({ translate, ...props }) => {
+const Transform: React.FC<Props> = ({ value, ...props }) => {
     const parentWorldTransform = useContext(TransformContext);
-    const worldTransform = localToWorld(parentWorldTransform, { translate });
+    const worldTransform = mat4.multiply(mat4.create(), parentWorldTransform, value);
     const translationStyle = {
-        transform: `translate3d(${translate.x}px, ${translate.y}px, ${translate.z}px)`,
+        transform: `matrix3d(${value.join(',')})`,
     };
 
     return (
