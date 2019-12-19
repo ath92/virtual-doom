@@ -37,11 +37,11 @@ const getCircleWallIntersection = (circle: Circle, wall: IntersectableWall) => {
 
 export const getIntersectionsWithCircle = (circle: Circle) => {
 	const intersections = Array<CircleIntersection>();
-	for (let wall of walls.values()) {
+	walls.forEach(wall => {
 		const intersection = getCircleWallIntersection(circle, wall);
 		if (intersection) {
 			intersections.push(intersection);
 		}
-	}
+	});
 	return intersections;
 };

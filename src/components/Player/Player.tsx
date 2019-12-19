@@ -27,7 +27,8 @@ const Player: React.FC = props => {
 		left: false,
 		right: false
 	});
-	const mouseX = useRef({ position: 0, speed: 0 });
+	const [hasPointerLock, setHasPointerLock] = useState(false);
+	const mouseX = useRef(0);
 
 	// keep direction keys in state so we can update position on every tick
 	useEffect(() => {
@@ -51,16 +52,32 @@ const Player: React.FC = props => {
 	// change direction based on mouseMove
 	useEffect(() => {
 		const onMouseMove = (e: MouseEvent) => {
-			mouseX.current = { position: e.clientX, speed: mouseX.current.position - e.clientX };
+			if (!hasPointerLock) return;
+			mouseX.current = -e.movementX;
 		};
 		window.addEventListener('mousemove', onMouseMove);
 		return () => window.removeEventListener('mousemove', onMouseMove);
-	}, [mouseX]);
+	}, [mouseX, hasPointerLock]);
+
+	// only track mouse if there is pointer lock
+	useEffect(() => {
+		const onPointerLockChange = () => {
+			setHasPointerLock(!!document.pointerLockElement);
+		}
+		const body = document.querySelector('body') as HTMLBodyElement;
+		const requestPointerLock = () => body.requestPointerLock();
+		document.addEventListener('mousedown', requestPointerLock);
+		document.addEventListener('pointerlockchange', onPointerLockChange, false);
+		return () => {
+			document.removeEventListener('mousedown', requestPointerLock);
+			document.removeEventListener('pointerlockchange', onPointerLockChange, false);
+		}
+	}, []);
 
 	const updatePosition = useCallback(() => {
 		const directionRotationMatrix = mat4.create();
-		setDirection(d => vec3.transformMat4(vec3.create(), d, mat4.fromYRotation(directionRotationMatrix, mouseX.current.speed * mouseSensitivity)));
-		mouseX.current.speed = 0;
+		setDirection(d => vec3.transformMat4(vec3.create(), d, mat4.fromYRotation(directionRotationMatrix, mouseX.current * mouseSensitivity)));
+		mouseX.current = 0;
 
 		const deltaPosition = vec3.scale(vec3.create(), direction, speed);
 
