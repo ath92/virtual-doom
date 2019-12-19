@@ -1,3 +1,4 @@
 .transform {
-    transform-style: preserve-3d;
+	transform-origin: left;
+	transform-style: preserve-3d;
 }

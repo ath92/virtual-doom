@@ -1,9 +1,9 @@
-
 .floor {
-    background-color: red;
-    height: 1000px;
-    position: absolute; 
-    transform: rotateX(90deg); /* horizontal */
-    transform-style: preserve-3d;
-    width: 1000px;
+	background-color: red;
+	height: 1000px;
+	position: absolute;
+	transform: rotateX(90deg); /* horizontal */
+	transform-origin: bottom;
+	transform-style: preserve-3d;
+	width: 1000px;
 }
