@@ -122,7 +122,7 @@ const Player: React.FC = props => {
 	return (
 		<div style={perspectiveStyle} className={styles.scene}>
 			<div style={playerTransformStyle} className={styles.player}>
-				<TransformContext.Provider value={playerTransform}>{props.children}</TransformContext.Provider>
+				{props.children}
 			</div>
 		</div>
 	);
