@@ -1,25 +1,34 @@
-import React from 'react';
-import { vec3, mat4 } from 'gl-matrix';
+import React, { useState, useEffect } from 'react';
+import { vec3, mat4, vec2 } from 'gl-matrix';
 import styles from './Wall.module.css';
 import Transform from '../Transform/Transform';
+import { register } from '../Wall/wall-intersection';
+import uid from '../../util/uid';
 
 type Props = {
-    position: vec3;
-    yRotation: number
-}
+	position: vec3;
+	yRotation: number;
+};
 
-const Wall: React.FC<Props> = ({ yRotation, position, ...props}) => {
-    const transform = mat4.create();
-    mat4.rotateY(transform, transform, yRotation);
-    mat4.translate(transform, transform, position);
+const length = 1000; //hard-coded in css as well, maybe paramterize
 
-    return (
-        <Transform value={transform}>
-            <div className={styles.wall}>
-                {props.children}
-            </div>
-        </Transform>
-    );
-}
+const Wall: React.FC<Props> = ({ yRotation, position, ...props }) => {
+	const [wallKey] = useState(uid('wall'));
+	const transform = mat4.create();
+	mat4.rotateY(transform, transform, yRotation);
+	mat4.translate(transform, transform, position);
+
+	useEffect(() => {
+		const start = vec2.fromValues(position[0], position[2]);
+		const end = vec2.fromValues(start[0] + Math.cos(yRotation) * length, start[1] + Math.sin(yRotation) * length);
+		register(wallKey, { start, end });
+	}, [position, yRotation, wallKey]);
+
+	return (
+		<Transform value={transform}>
+			<div className={styles.wall}>{props.children}</div>
+		</Transform>
+	);
+};
 
 export default Wall;

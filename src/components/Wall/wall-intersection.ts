@@ -1,8 +1,8 @@
-import { mat4, vec2 } from 'gl-matrix';
+import { vec2 } from 'gl-matrix';
 
 export type IntersectableWall = {
-	transform: mat4;
-	length?: number;
+	start: vec2;
+	end: vec2;
 };
 
 type Circle = {
@@ -29,9 +29,7 @@ const wallVector = vec2.fromValues(1, 0);
 const circleVector = vec2.fromValues(0, 0);
 
 const getCircleWallIntersection = (circle: Circle, wall: IntersectableWall) => {
-	// translate / rotate wall vector
-	vec2.transformMat4(wallVector, wallVector, wall.transform);
-
+	// console.log(circle.position);
 	return null;
 };
 

@@ -1,9 +1,13 @@
 .scene {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	position: relative;
 }
 
 .player {
-    transform-style: preserve-3d;
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform-style: preserve-3d;
 }
