@@ -18,6 +18,7 @@ const mouseSensitivity = 0.0015;
 const origin = vec3.fromValues(0, 0, 0);
 const forward = vec3.fromValues(0, 0, -1);
 const up = vec3.fromValues(0, 1, 0);
+const playerZOffset = vec3.fromValues(0, 0, -perspective);
 const rotateLeft = mat4.fromYRotation(mat4.create(), 0.5 * Math.PI);
 const rotateRight = mat4.fromYRotation(mat4.create(), -0.5 * Math.PI);
 
@@ -90,27 +91,33 @@ const Player: React.FC = props => {
 		vec3.scale(deltaPosition, newDirection, speed);
 
 		// strafing with keys
-		const p2 = vec3.create();
-		if (directionKeys.forward) setPosition(p => vec3.add(p2, p, deltaPosition));
-		if (directionKeys.backward) setPosition(p => vec3.add(p2, p, vec3.negate(vec3.create(), deltaPosition)));
-		if (directionKeys.left) setPosition(p => vec3.add(p2, p, vec3.transformMat4(vec3.create(), deltaPosition, rotateLeft)));
-		if (directionKeys.right) setPosition(p => vec3.add(p2, p, vec3.transformMat4(vec3.create(), deltaPosition, rotateRight)));
+		const diff = vec3.create();
+		if (directionKeys.forward) vec3.add(diff, diff, deltaPosition);
+		if (directionKeys.backward) vec3.add(diff, diff, vec3.negate(vec3.create(), deltaPosition));
+		if (directionKeys.left) vec3.add(diff, diff, vec3.transformMat4(vec3.create(), deltaPosition, rotateLeft));
+		if (directionKeys.right) vec3.add(diff, diff, vec3.transformMat4(vec3.create(), deltaPosition, rotateRight));
+		
+		setPosition(p => {
+			const p2 = vec3.add(vec3.create(), p, diff);
+
+			const intersections = getIntersectionsWithCircle({
+				position: vec2.fromValues(p2[0], -p2[2]), // z-axis is flipped?
+				radius: 50
+			});
+			if (intersections.length) {
+				console.log(position);
+				console.log(intersections);
+				return p;
+			} else {
+				return p2;
+			}
+		});
 	}, [directionKeys, setDirection]);
 
 	useTick(updatePosition);
-
-	useEffect(() => {
-		const intersections = getIntersectionsWithCircle({
-			position: vec2.fromValues(position[0], position[2]),
-			radius: 50
-		});
-		if (intersections.length) {
-			console.log(position);
-			console.log(intersections);
-		}
-	}, [position]);
-
-	const playerTransform = mat4.lookAt(mat4.create(), position, vec3.add(vec3.create(), position, direction), up);
+	// offset here, because we need to add {perspective} in css to prevent rotating around the eyes
+	const playerPosition = vec3.add(vec3.create(), position, playerZOffset);
+	const playerTransform = mat4.lookAt(mat4.create(), playerPosition, vec3.add(vec3.create(), playerPosition, direction), up);
 
 	const playerTransformStyle = {
 		transform: `matrix3d(${playerTransform.join(',')})`,
