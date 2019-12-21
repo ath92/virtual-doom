@@ -13,15 +13,17 @@ const playerHeight = 120; // negative because again, up is negative
 // , but also the depth of the view frustum, so it's important to reuse this when computing the transformOrigin
 const perspective = 750;
 const speed = 30;
-const mouseSensitivity = 0.05;
+const mouseSensitivity = 0.0015;
 
-const forward = vec3.fromValues(0, 0, 1);
+const origin = vec3.fromValues(0, 0, 0);
+const forward = vec3.fromValues(0, 0, -1);
+const up = vec3.fromValues(0, 1, 0);
 const rotateLeft = mat4.fromYRotation(mat4.create(), 0.5 * Math.PI);
 const rotateRight = mat4.fromYRotation(mat4.create(), -0.5 * Math.PI);
 
 const Player: React.FC = props => {
 	const [position, setPosition] = useState(vec3.fromValues(0, 0, 0));
-	const [direction, setDirection] = useState(vec3.fromValues(0, 0, -1)); // start with forward, will be changed on mousemove
+	const [direction, setDirection] = useState(vec3.create()); // start with forward, will be changed on mousemove
 	const [directionKeys, setDirectionKeys] = useState({
 		forward: false,
 		backward: false,
@@ -29,7 +31,7 @@ const Player: React.FC = props => {
 		right: false
 	});
 	const [hasPointerLock, setHasPointerLock] = useState(false);
-	const mouseX = useRef(0);
+	const mousePosition = useRef([0, 0]);
 
 	// keep direction keys in state so we can update position on every tick
 	useEffect(() => {
@@ -53,12 +55,15 @@ const Player: React.FC = props => {
 	// change direction based on mouseMove
 	useEffect(() => {
 		const onMouseMove = (e: MouseEvent) => {
-			// if (!hasPointerLock) return;
-			mouseX.current = -e.movementX;
+			if (!hasPointerLock) return;
+			mousePosition.current = [
+				mousePosition.current[0] + -e.movementX,
+				mousePosition.current[1] + e.movementY
+			];
 		};
 		window.addEventListener('mousemove', onMouseMove);
 		return () => window.removeEventListener('mousemove', onMouseMove);
-	}, [mouseX, hasPointerLock]);
+	}, [mousePosition, hasPointerLock]);
 
 	// only track mouse if there is pointer lock
 	useEffect(() => {
@@ -76,11 +81,13 @@ const Player: React.FC = props => {
 	}, []);
 
 	const updatePosition = useCallback(() => {
-		const directionRotationMatrix = mat4.create();
-		setDirection(d => vec3.transformMat4(vec3.create(), d, mat4.fromYRotation(directionRotationMatrix, mouseX.current * mouseSensitivity)));
-		mouseX.current = 0;
+		const newDirection = vec3.clone(forward);
+		vec3.rotateX(newDirection, newDirection, origin, mousePosition.current[1] * mouseSensitivity);
+		vec3.rotateY(newDirection, newDirection, origin, mousePosition.current[0] * mouseSensitivity);
+		setDirection(newDirection);
 
-		const deltaPosition = vec3.scale(vec3.create(), direction, speed);
+		const deltaPosition = vec3.create();
+		vec3.scale(deltaPosition, newDirection, speed);
 
 		// strafing with keys
 		const p2 = vec3.create();
@@ -88,43 +95,38 @@ const Player: React.FC = props => {
 		if (directionKeys.backward) setPosition(p => vec3.add(p2, p, vec3.negate(vec3.create(), deltaPosition)));
 		if (directionKeys.left) setPosition(p => vec3.add(p2, p, vec3.transformMat4(vec3.create(), deltaPosition, rotateLeft)));
 		if (directionKeys.right) setPosition(p => vec3.add(p2, p, vec3.transformMat4(vec3.create(), deltaPosition, rotateRight)));
-	}, [directionKeys, direction, setDirection]);
+	}, [directionKeys, setDirection]);
 
 	useTick(updatePosition);
 
 	useEffect(() => {
-		console.log(position);
 		const intersections = getIntersectionsWithCircle({
 			position: vec2.fromValues(position[0], position[2]),
 			radius: 50
 		});
 		if (intersections.length) {
+			console.log(position);
 			console.log(intersections);
 		}
 	}, [position]);
 
-	const rotation = (direction[0] > 0 ? -1 : 1) * vec3.angle(direction, forward) - Math.PI;
-
-	// negate because we're actually moving the whole world, not the player
-	const playerPosition = vec3.negate(vec3.create(), position);
-	const playerTransform = mat4.create();
-	mat4.translate(playerTransform, playerTransform, playerPosition); // first translate
-	mat4.rotateY(playerTransform, playerTransform, rotation); // then rotate
+	const playerTransform = mat4.lookAt(mat4.create(), position, vec3.add(vec3.create(), position, direction), up);
 
 	const playerTransformStyle = {
 		transform: `matrix3d(${playerTransform.join(',')})`,
-		transformOrigin: `calc(50% + ${position[0]}px)
-		                  calc(50% + ${position[1]}px)
-		                  ${position[2]}px`
+		transformOrigin: `0 0 ${perspective}px`
 	};
 	const perspectiveStyle = { perspective: `${perspective}px` };
 
 	return (
-		<div style={perspectiveStyle} className={styles.scene}>
-			<div style={playerTransformStyle} className={styles.player}>
-				{props.children}
+		<>
+			<div className={styles.crosshair}></div>
+			<div style={perspectiveStyle} className={styles.scene}>
+				<div style={playerTransformStyle} className={styles.player}>
+					{props.children}
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
