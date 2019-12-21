@@ -12,7 +12,8 @@ const World: React.FC = props => {
 				<Wall position={vec3.fromValues(0, 0, 0)} yRotation={degToRad(90)} />
 			</Wall>
             <Wall position={vec3.fromValues(1000, 0, 1000)} yRotation={0} length={2000}></Wall>
-            <Wall position={vec3.fromValues(1000, 0, 1000)} yRotation={degToRad(90)} length={2000}></Wall>
+            <Wall position={vec3.fromValues(2000, 0, 1000)} yRotation={degToRad(90)} length={2000}></Wall>
+            <Wall position={vec3.fromValues(3000, 0, 2000)} yRotation={degToRad(90)} length={2000}></Wall>
 		</>
 	);
 };

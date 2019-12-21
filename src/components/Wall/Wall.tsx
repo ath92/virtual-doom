@@ -16,13 +16,13 @@ const Wall: React.FC<Props> = ({ yRotation = 0, position, length = 1000, ...prop
 	const [wallKey] = useState(uid('wall'));
 	const worldTransform = useContext(TransformContext);
 	const transform = mat4.create();
-	mat4.rotateY(transform, transform, -yRotation); // -yRotation because y is flipped
 	mat4.translate(transform, transform, position);
+	mat4.rotateY(transform, transform, yRotation); // -yRotation because y is flipped
 
 	useEffect(() => {
 		const start = vec2.fromValues(position[0], position[2]);
 		vec2.transformMat4(start, start, worldTransform);
-		const end = vec2.fromValues(position[0] + Math.cos(yRotation) * length, position[2] + Math.sin(yRotation) * length);
+		const end = vec2.fromValues(position[0] + Math.cos(-yRotation) * length, position[2] + Math.sin(-yRotation) * length);
 		vec2.transformMat4(end, end, worldTransform);
         register(wallKey, { start, end });
     }, [position, yRotation, wallKey, worldTransform]);
