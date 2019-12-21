@@ -1,5 +1,5 @@
 .wall {
-	background-color: green;
+	background: url('./texture.png');
 	height: 1000px;
 	position: absolute;
 	transform-style: preserve-3d;

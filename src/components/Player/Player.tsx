@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import TransformContext from '../../context/TransformContext';
 import useTick from '../../hooks/useTick';
 import { vec2, vec3, mat4 } from 'gl-matrix';
 import styles from './Player.module.css';
@@ -8,7 +7,6 @@ import { getIntersectionsWithCircle } from '../Wall/wall-intersection';
 // TODO: clean up maths in here
 
 // const up = new Vec3(0, -1, 0); // -1 for y because browsers have origin at the top of the screen
-const playerHeight = 120; // negative because again, up is negative
 // This is based off of the perspective css property, basically controls FOV
 // , but also the depth of the view frustum, so it's important to reuse this when computing the transformOrigin
 const perspective = 750;
@@ -104,6 +102,7 @@ const Player: React.FC = props => {
 				position: vec2.fromValues(p2[0], -p2[2]), // z-axis is flipped?
 				radius: 50
 			});
+			
 			if (intersections.length) {
 				console.log(position);
 				console.log(intersections);
