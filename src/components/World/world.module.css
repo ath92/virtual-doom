@@ -1,9 +1,9 @@
 .floor {
-	background-color: red;
-	height: 1000px;
+	background-image: url('./floor.jpg');
+	height: 2000px;
 	position: absolute;
 	transform: rotateX(90deg); /* horizontal */
-	transform-origin: bottom;
+	transform-origin: 0 1000px;
 	transform-style: preserve-3d;
-	width: 1000px;
+	width: 2000px;
 }

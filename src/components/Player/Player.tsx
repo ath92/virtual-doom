@@ -99,10 +99,10 @@ const Player: React.FC = props => {
 			const p2 = vec3.add(vec3.create(), p, diff);
 
 			const intersections = getIntersectionsWithCircle({
-				position: vec2.fromValues(p2[0], -p2[2]), // z-axis is flipped?
+				position: vec2.fromValues(p2[0], p2[2]),
 				radius: 50
 			});
-			
+
 			if (intersections.length) {
 				console.log(position);
 				console.log(intersections);

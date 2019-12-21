@@ -1,4 +1,5 @@
 .transform {
 	transform-origin: left;
 	transform-style: preserve-3d;
+	position: absolute;
 }

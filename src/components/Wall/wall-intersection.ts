@@ -1,6 +1,6 @@
 import { vec2 } from 'gl-matrix';
 
-export type IntersectableWall = {
+type IntersectableWall = {
 	start: vec2;
 	end: vec2;
 };
@@ -10,15 +10,11 @@ type Circle = {
 	radius: number;
 };
 
-type CircleIntersection = {
-	p1: vec2;
-	p2: vec2;
-};
-
+// for now we're dealing with a very small number of walls,
+// so it doesn't make sense to optimize this to something better (e.g. quadtree)
 const walls = new Map<string, IntersectableWall>();
 
 export const register = (key: string, wall: IntersectableWall) => {
-	console.log(wall);
 	walls.set(key, wall);
 };
 
