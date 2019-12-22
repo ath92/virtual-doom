@@ -6,13 +6,12 @@ import TransformContext from '../../context/TransformContext';
 import { register, unRegister } from '../Wall/wall-intersection';
 import uid from '../../util/uid';
 
-type Props = {
+
+const Wall: React.FC<{
 	position: vec3;
     yRotation?: number;
     length?: number;
-};
-
-const Wall: React.FC<Props> = ({ yRotation = 0, position, length = 1000, ...props }) => {
+}> = ({ yRotation = 0, position, length = 1000, ...props }) => {
 	const [wallKey] = useState(uid('wall'));
 	const worldTransform = useContext(TransformContext);
 	const transform = mat4.create();
@@ -25,9 +24,9 @@ const Wall: React.FC<Props> = ({ yRotation = 0, position, length = 1000, ...prop
 		const end = vec2.fromValues(position[0] + Math.cos(-yRotation) * length, position[2] + Math.sin(-yRotation) * length);
 		vec2.transformMat4(end, end, worldTransform);
         register(wallKey, { start, end });
-    }, [position, yRotation, wallKey, worldTransform]);
+    }, [position, yRotation, wallKey, worldTransform, length]);
 
-    useEffect(() => () => unRegister(wallKey), []);
+    useEffect(() => () => unRegister(wallKey), [wallKey]);
     
     const style = {
         width: `${length}px`

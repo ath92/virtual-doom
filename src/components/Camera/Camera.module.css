@@ -1,21 +1,13 @@
-.scene {
+.camera {
 	width: 100vw;
 	height: 100vh;
 	overflow: hidden;
 	position: relative;
 }
 
-.player {
+.scene {
 	left: 50%;
 	position: absolute;
 	top: 50%;
 	transform-style: preserve-3d;
-}
-
-.crosshair {
-	position: fixed;
-	left: 50%;
-	top: 50%;
-	border: 2px solid blue;
-	z-index: 1;
 }
