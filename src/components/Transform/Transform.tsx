@@ -7,7 +7,6 @@ const Transform: React.FC<{
     value: mat4
 }> = ({ value, ...props }) => {
     const parentWorldTransform = useContext(TransformContext);
-    // TODO: figure out of this order is correct (and how gl-matrix multiplies matrices anyway)
     const worldTransform = mat4.multiply(mat4.create(), parentWorldTransform, value);
     const transformStyle = {
         transform: `matrix3d(${value.join(',')})`,

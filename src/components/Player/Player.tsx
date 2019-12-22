@@ -103,7 +103,7 @@ const Player: React.FC = props => {
 
 			if (intersections.length) {
 				console.log(intersections);
-				return p;
+				// return p;
 			}
 			return p2;
 		});
