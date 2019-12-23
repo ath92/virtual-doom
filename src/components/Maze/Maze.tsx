@@ -12,6 +12,10 @@ type MazeCell = {
     y: number
 }
 
+const pickRandom = (a: any[]) => {
+    return a[Math.floor(Math.random() * a.length)];
+}
+
 const generateMaze = (size: number, start: [number, number] = [0, 0]) => {
     const maze = new Array<Array<MazeCell>>();
     for (let y = 0; y < size; y++) {
@@ -51,7 +55,7 @@ const generateMaze = (size: number, start: [number, number] = [0, 0]) => {
                 frontier.push(c);
             });
 
-        const visitedNeighbor = neighbors.filter(({ visited }) => visited)[0];
+        const visitedNeighbor = pickRandom(neighbors.filter(({ visited }) => visited));
         if (!visitedNeighbor) return;
         if (visitedNeighbor.x < cell.x) cell.walls.left = false;
         if (visitedNeighbor.y < cell.y) cell.walls.top = false;
@@ -73,13 +77,11 @@ const generateMaze = (size: number, start: [number, number] = [0, 0]) => {
 const Maze: React.FC<{
     wallLength?: number
 }> = ({wallLength = 1000, ...props}) => {
-    const [maze] = useState(generateMaze(10));
+    const [maze] = useState(generateMaze(5));
 
     const getPosition = (x: number, y: number) => {
         return vec3.fromValues(x * wallLength, 0, y * wallLength);
     }
-
-    console.log(maze);
 
     return (
         <>
@@ -92,7 +94,7 @@ const Maze: React.FC<{
                     (<Wall position={getPosition(cell.x, cell.y)}></Wall>) :
                     null;
                 return [leftWall, topWall];
-            })).flat()
+            }))
         }
         </>
     );
