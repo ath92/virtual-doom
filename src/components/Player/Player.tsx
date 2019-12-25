@@ -101,8 +101,10 @@ const Player: React.FC = props => {
 				radius: 50
 			});
 
+
 			if (intersections.length) {
-				console.log(intersections);
+				console.log(p2);
+				// console.log(intersections);
 				// return p;
 			}
 			return p2;

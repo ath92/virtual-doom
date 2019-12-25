@@ -3,6 +3,7 @@ import { vec3, mat4, vec2 } from 'gl-matrix';
 import styles from './Wall.module.css';
 import Transform from '../Transform/Transform';
 import TransformContext from '../../context/TransformContext';
+import Intersectable from '../Intersectable/Intersectable';
 import { register, unRegister } from '../Wall/wall-intersection';
 import uid from '../../util/uid';
 
@@ -34,9 +35,11 @@ const Wall: React.FC<{
 
 	return (
 		<Transform value={transform}>
-			<div className={styles.wall} style={style}>
-                {props.children}
-            </div>
+            <Intersectable>
+                <div className={styles.wall} style={style}>
+                    {props.children}
+                </div>
+            </Intersectable>
 		</Transform>
 	);
 };

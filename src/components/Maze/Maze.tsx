@@ -12,7 +12,7 @@ type MazeCell = {
     y: number
 }
 
-const pickRandom = (a: any[]) => {
+function pickRandom<T>(a: Array<T>): T {
     return a[Math.floor(Math.random() * a.length)];
 }
 
@@ -35,6 +35,34 @@ const generateMaze = (size: number, start: [number, number] = [0, 0]) => {
 
     const frontier = new Array<MazeCell>();
     const firstCell = maze[start[0]][start[1]];
+
+    const printMaze = () => {
+        let string = '';
+        maze.forEach(row => {
+            row.forEach(cell => {
+                if (cell.walls.top) {
+                    string += ' -';
+                } else {
+                    string += '  ';
+                }
+            })
+
+            string += '\n';
+
+            row.forEach(cell => {
+                let s = frontier.includes(cell) ? 'x' : ' ';
+                s = cell.visited ? 'o' : s;
+                if (cell.walls.left) {
+                    string += '|' + s;
+                } else {
+                    string += ' ' + s;
+                }
+            });
+
+            string += '\n';
+        });
+        console.log(string);
+    }
 
     const getNeighbors = (cell: MazeCell) => {
         const { x, y } = cell;
@@ -60,17 +88,18 @@ const generateMaze = (size: number, start: [number, number] = [0, 0]) => {
         if (visitedNeighbor.x < cell.x) cell.walls.left = false;
         if (visitedNeighbor.y < cell.y) cell.walls.top = false;
         if (visitedNeighbor.x > cell.x) visitedNeighbor.walls.left = false;
-        if (visitedNeighbor.y > cell.x) visitedNeighbor.walls.top = false;
+        if (visitedNeighbor.y > cell.y) visitedNeighbor.walls.top = false;
     }
     
     visit(firstCell);
-
+    let currentCell = firstCell;
     while (frontier.length) {
-        const randomIndex = Math.floor(Math.random() * frontier.length);
-        const cell = frontier.splice(randomIndex, 1)[0];
-        visit(cell);
+        currentCell = frontier.splice(frontier.findIndex(c => {
+            return getNeighbors(currentCell).includes(c);
+        }), 1)[0];
+        visit(currentCell);
+        printMaze();
     }
-
     return maze;
 }
 
@@ -86,12 +115,12 @@ const Maze: React.FC<{
     return (
         <>
         {
-            maze.map(row => row.map(cell => {
+            maze.map((row, y) => row.map((cell, x) => {
                 const leftWall = cell.walls.left ?
-                    (<Wall position={getPosition(cell.x, cell.y)} yRotation={0.5 * Math.PI}></Wall>) :
+                    (<Wall position={getPosition(cell.x, cell.y)} yRotation={-0.5 * Math.PI} key={`left${x}${y}`}></Wall>) :
                     null;
                 const topWall = cell.walls.top ?
-                    (<Wall position={getPosition(cell.x, cell.y)}></Wall>) :
+                    (<Wall position={getPosition(cell.x, cell.y)} key={`top${x}${y}`}></Wall>) :
                     null;
                 return [leftWall, topWall];
             }))

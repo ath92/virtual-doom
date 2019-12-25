@@ -1,0 +1,3 @@
+.intersectable > * {
+    position: static; /* to allow measuring of children using offsetWidth / Height */
+}
