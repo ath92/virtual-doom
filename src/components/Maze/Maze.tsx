@@ -98,7 +98,7 @@ const generateMaze = (size: number, start: [number, number] = [0, 0]) => {
             return getNeighbors(currentCell).includes(c);
         }), 1)[0];
         visit(currentCell);
-        printMaze();
+        // printMaze();
     }
     return maze;
 }
@@ -109,7 +109,8 @@ const Maze: React.FC<{
     const [maze] = useState(generateMaze(5));
 
     const getPosition = (x: number, y: number) => {
-        return vec3.fromValues(x * wallLength, 0, y * wallLength);
+        // added offset temporarily for testing
+        return vec3.fromValues(x * wallLength + 1000, 0, y * wallLength + 1000);
     }
 
     return (

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import useTick from '../../hooks/useTick';
 import { vec2, vec3, mat4 } from 'gl-matrix';
 import { getIntersectionsWithCircle } from '../Wall/wall-intersection';
+import { getRectangleRayIntersections } from '../../collision';
 import Camera from '../Camera/Camera';
 
 // TODO: clean up maths in here
@@ -82,6 +83,13 @@ const Player: React.FC = props => {
 		vec3.rotateY(newDirection, newDirection, origin, -mousePosition.current[0] * mouseSensitivity);
 		setDirection(newDirection);
 
+		if (!directionKeys.current.forward
+			&& !directionKeys.current.backward
+			&& !directionKeys.current.left
+			&& !directionKeys.current.right) {
+			return;
+		}
+
 		const deltaPosition = vec3.clone(newDirection);
 		// vec3.rotateY(deltaPosition, forward, origin, -vec3.angle(newDirection, forward));
 		vec3.scale(deltaPosition, deltaPosition, speed);
@@ -93,21 +101,25 @@ const Player: React.FC = props => {
 		if (directionKeys.current.left) vec3.add(diff, diff, vec3.transformMat4(vec3.create(), deltaPosition, rotateLeft));
 		if (directionKeys.current.right) vec3.add(diff, diff, vec3.transformMat4(vec3.create(), deltaPosition, rotateRight));
 		
+
+
 		setPosition(p => {
-			const p2 = vec3.add(vec3.create(), p, diff);
 			// before updating position, check if we're going through a wall
-			const intersections = getIntersectionsWithCircle({
-				position: vec2.fromValues(p2[0], p2[2]),
-				radius: 50
-			});
+			const distance = vec3.len(diff);
+			const intersections = getRectangleRayIntersections({
+				position: p,
+				direction: diff
+			})
+			.filter(i => i > 0 && i < 1)
+			.sort();
 
 
 			if (intersections.length) {
-				console.log(p2);
-				// console.log(intersections);
+				// console.log(Date.now(), p2);
+				vec3.scale(diff, diff, intersections[0] / distance);
 				// return p;
 			}
-			return p2;
+			return vec3.add(vec3.create(), p, diff);
 		});
 	}, [directionKeys, setDirection, setPosition]);
 
