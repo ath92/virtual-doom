@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import useTick from '../../hooks/useTick';
-import { vec2, vec3, mat4 } from 'gl-matrix';
-import { getIntersectionsWithCircle } from '../Wall/wall-intersection';
+import { vec3, mat4 } from 'gl-matrix';
 import { getRectangleRayIntersections } from '../../collision';
 import Camera from '../Camera/Camera';
 
@@ -87,11 +86,10 @@ const Player: React.FC = props => {
 			&& !directionKeys.current.backward
 			&& !directionKeys.current.left
 			&& !directionKeys.current.right) {
-			return;
+			return; // return early here, we only need to update looking position.
 		}
 
 		const deltaPosition = vec3.clone(newDirection);
-		// vec3.rotateY(deltaPosition, forward, origin, -vec3.angle(newDirection, forward));
 		vec3.scale(deltaPosition, deltaPosition, speed);
 
 		// strafing with keys
@@ -101,8 +99,6 @@ const Player: React.FC = props => {
 		if (directionKeys.current.left) vec3.add(diff, diff, vec3.transformMat4(vec3.create(), deltaPosition, rotateLeft));
 		if (directionKeys.current.right) vec3.add(diff, diff, vec3.transformMat4(vec3.create(), deltaPosition, rotateRight));
 		
-
-
 		setPosition(p => {
 			// before updating position, check if we're going through a wall
 			const distance = vec3.len(diff);
@@ -113,12 +109,10 @@ const Player: React.FC = props => {
 			.filter(i => i > 0 && i < 1)
 			.sort();
 
-			const offset = 0.05;
+			const offset = 0.05; // small offset to prevent players from being able to look through elements when very close
 
 			if (intersections.length) {
-				console.log(p);
 				vec3.scale(diff, diff, (intersections[0] - offset) / distance);
-				// return p;
 			}
 			return vec3.add(vec3.create(), p, diff);
 		});

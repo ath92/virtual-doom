@@ -2,10 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { vec3, mat4, vec2 } from 'gl-matrix';
 import styles from './Wall.module.css';
 import Transform from '../Transform/Transform';
-import TransformContext from '../../context/TransformContext';
 import Intersectable from '../Intersectable/Intersectable';
-import { register, unRegister } from '../Wall/wall-intersection';
-import uid from '../../util/uid';
 
 
 const Wall: React.FC<{
@@ -13,21 +10,8 @@ const Wall: React.FC<{
     yRotation?: number;
     length?: number;
 }> = ({ yRotation = 0, position, length = 1000, ...props }) => {
-	const [wallKey] = useState(uid('wall'));
-	const worldTransform = useContext(TransformContext);
-	const transform = mat4.create();
-	mat4.translate(transform, transform, position);
+	const transform = mat4.fromTranslation(mat4.create(), position);
 	mat4.rotateY(transform, transform, yRotation); // -yRotation because y is flipped
-
-	useEffect(() => {
-		const start = vec2.fromValues(position[0], position[2]);
-		vec2.transformMat4(start, start, worldTransform);
-		const end = vec2.fromValues(position[0] + Math.cos(-yRotation) * length, position[2] + Math.sin(-yRotation) * length);
-		vec2.transformMat4(end, end, worldTransform);
-        register(wallKey, { start, end });
-    }, [position, yRotation, wallKey, worldTransform, length]);
-
-    useEffect(() => () => unRegister(wallKey), [wallKey]);
     
     const style = {
         width: `${length}px`

@@ -23,7 +23,7 @@ const Camera: React.FC<{
         up
     );
 
-	const cameraTransformStyle = {
+	const sceneTransformStyle = {
 		transform: `matrix3d(${sceneTransform.join(',')})`,
 		transformOrigin: `0 0 ${perspective}px`
     };
@@ -32,7 +32,7 @@ const Camera: React.FC<{
         <>
             <div className={styles.crosshair}></div>
             <div style={perspectiveStyle} className={styles.camera}>
-                <div style={cameraTransformStyle} className={styles.scene}>
+                <div style={sceneTransformStyle} className={styles.scene}>
                     {props.children}
                 </div>
             </div>

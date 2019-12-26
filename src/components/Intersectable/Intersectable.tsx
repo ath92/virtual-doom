@@ -2,12 +2,12 @@ import React, { useContext, useCallback, useState, useEffect } from 'react';
 import TransformContext from '../../context/TransformContext';
 import styles from './Intersectable.module.css';
 import { vec3 } from 'gl-matrix';
-import { register } from '../../collision';
+import { register, unRegister } from '../../collision';
 import uid from '../../util/uid';
 
 const origin = vec3.fromValues(0, 0, 0);
 const right = vec3.fromValues(1, 0, 0);
-const down = vec3.fromValues(0, 1, 0); // -1 or +1?
+const down = vec3.fromValues(0, 1, 0);
 
 const Intersectable: React.FC = (props) => {
     const [dimensions, setDimensions] = useState([0, 0]);
@@ -32,6 +32,9 @@ const Intersectable: React.FC = (props) => {
 
         register(intersectableKey, { position, leftSide, topSide });
     }, [dimensions]);
+
+    // only unregister when component unmounts
+    useEffect(() => () => unRegister(intersectableKey), [intersectableKey]);
 
     return (
         <div ref={measuredRef} className={styles.intersectable}>
