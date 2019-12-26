@@ -113,10 +113,11 @@ const Player: React.FC = props => {
 			.filter(i => i > 0 && i < 1)
 			.sort();
 
+			const offset = 0.05;
 
 			if (intersections.length) {
-				// console.log(Date.now(), p2);
-				vec3.scale(diff, diff, intersections[0] / distance);
+				console.log(p);
+				vec3.scale(diff, diff, (intersections[0] - offset) / distance);
 				// return p;
 			}
 			return vec3.add(vec3.create(), p, diff);

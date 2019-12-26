@@ -23,15 +23,23 @@ export const unRegister = (key: string) => {
 	intersectables.delete(key);
 };
 
-const projectOnto = (onto: vec3, vector: vec3): vec3 => {
-    const scale = vec3.dot(onto, vector) / (vec3.len(onto) ** 2);
-    return vec3.scale(vec3.create(), onto, scale);
+const projectOnto = (onto: vec3, vector: vec3): vec3 | null => {
+    const ontolen = vec3.len(onto);
+    const scale = vec3.dot(onto, vector) / ontolen;
+    if (scale < 0) return null; // we don't want to use the projection if the angle between the two is obtuse
+    return vec3.scale(vec3.create(), onto, scale / ontolen);
 }
 
+// console.log(projectOnto(
+//     vec3.fromValues(1, 0, 0),
+//     vec3.fromValues(-1, 1, 0)
+// ))
+
+// TODO: optimize for more vector reuse here
 const getRectangleRayIntersection = (ray: Ray, intersectable: Intersectable): (number | null) => {
     const P0MinusR0 = vec3.subtract(vec3.create(), intersectable.position, ray.position);
     const N = vec3.cross(vec3.create(), intersectable.topSide, intersectable.leftSide);
-    const DDotN = vec3.dot(N, ray.direction);
+    const DDotN = vec3.dot(ray.direction, N);
 
     const P0MinusR0DotN = vec3.dot(P0MinusR0, N);
 
@@ -43,6 +51,8 @@ const getRectangleRayIntersection = (ray: Ray, intersectable: Intersectable): (n
     const Q1 = projectOnto(intersectable.leftSide, P0P);
     const Q2 = projectOnto(intersectable.topSide, P0P);
 
+    if (!Q1 || !Q2) return null;
+
     const Q1Length = vec3.length(Q1);
     const Q2Length = vec3.length(Q2);
     const leftSideLength = vec3.length(intersectable.leftSide);
@@ -50,26 +60,25 @@ const getRectangleRayIntersection = (ray: Ray, intersectable: Intersectable): (n
 
     if (Q1Length >= 0 && Q1Length <= leftSideLength
         && Q2Length >= 0 && Q2Length <= topSideLength) {
-        // console.log('got an intersection!');
         return t;
     }
 
     return null;
 }
 
-console.log(getRectangleRayIntersection(
-    {
-        position: vec3.fromValues(1, 1, 0),
-        direction: vec3.fromValues(0, 0, 1)
-    },
-    {
-        position: vec3.fromValues(0, 0, 1),
-        topSide: vec3.fromValues(2, 0, 0),
-        leftSide: vec3.fromValues(0, 2, 0)
-    }
-));
+// console.log(getRectangleRayIntersection(
+//     {
+//         position: vec3.fromValues(1, -1, 0),
+//         direction: vec3.fromValues(0, 0, 1)
+//     },
+//     {
+//         position: vec3.fromValues(0, 0, 1),
+//         topSide: vec3.fromValues(2, 0, 0),
+//         leftSide: vec3.fromValues(0, 2, 0)
+//     }
+// ));
 
-// expect intersection at [1, 1, 1]
+// expect no intersection
 
 export const getRectangleRayIntersections = (ray: Ray) => {
     const intersections = Array<number>();
