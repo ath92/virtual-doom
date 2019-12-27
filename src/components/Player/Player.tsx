@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import useTick from '../../hooks/useTick';
 import { vec3, mat4 } from 'gl-matrix';
-import { getRectangleRayIntersections } from '../../collision';
+import { getRectangleRayIntersections } from '../../collision/collision';
 import Camera from '../Camera/Camera';
 
 // TODO: clean up maths in here
@@ -105,7 +105,7 @@ const Player: React.FC = props => {
 			const intersections = getRectangleRayIntersections({
 				position: p,
 				direction: diff
-			})
+			}, 'lookAt')
 			.filter(i => i > 0 && i < 1)
 			.sort();
 
@@ -117,6 +117,17 @@ const Player: React.FC = props => {
 			return vec3.add(vec3.create(), p, diff);
 		});
 	}, [directionKeys, setDirection, setPosition]);
+
+	useEffect(() => {
+		const onClick = () => {
+			getRectangleRayIntersections({
+				position,
+				direction
+			}, 'click');
+		}
+		window.addEventListener('click', onClick);
+		return () => window.removeEventListener('click', onClick);
+	}, [position, direction]);
 
 	useTick(updatePosition);
 

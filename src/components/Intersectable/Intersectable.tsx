@@ -2,14 +2,16 @@ import React, { useContext, useCallback, useState, useEffect } from 'react';
 import TransformContext from '../../context/TransformContext';
 import styles from './Intersectable.module.css';
 import { vec3 } from 'gl-matrix';
-import { register, unRegister } from '../../collision';
+import { register, unRegister } from '../../collision/collision';
 import uid from '../../util/uid';
 
 const origin = vec3.fromValues(0, 0, 0);
 const right = vec3.fromValues(1, 0, 0);
 const down = vec3.fromValues(0, 1, 0);
 
-const Intersectable: React.FC = (props) => {
+const Intersectable: React.FC<{
+    callback?: (type?: string) => void
+}> = ({ callback, ...props }) => {
     const [dimensions, setDimensions] = useState([0, 0]);
     const worldTransform = useContext(TransformContext);
     const [intersectableKey] = useState(uid('inter'));
@@ -30,7 +32,7 @@ const Intersectable: React.FC = (props) => {
         vec3.transformMat4(leftSide, leftSide, worldTransform);
         vec3.sub(leftSide, leftSide, position);
 
-        register(intersectableKey, { position, leftSide, topSide });
+        register(intersectableKey, { position, leftSide, topSide, callback });
     }, [dimensions]);
 
     // only unregister when component unmounts
