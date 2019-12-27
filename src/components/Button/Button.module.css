@@ -1,0 +1,7 @@
+.button {
+    transform: scale(5);
+}
+
+.button--hover {
+    background-color: red;
+}

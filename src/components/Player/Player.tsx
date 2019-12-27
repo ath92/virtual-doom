@@ -3,6 +3,7 @@ import useTick from '../../hooks/useTick';
 import { vec3, mat4 } from 'gl-matrix';
 import { getRectangleRayIntersections } from '../../collision/collision';
 import Camera from '../Camera/Camera';
+import LookAtContext from '../../context/LookAtContext';
 
 // TODO: clean up maths in here
 
@@ -28,6 +29,7 @@ const Player: React.FC = props => {
 	});
 	const mousePosition = useRef([0, 0]);
 	const [hasPointerLock, setHasPointerLock] = useState(false);
+	const [lookAt, setLookAt] = useState<string | null>(null);
 	
 	// keep direction keys in state so we can update position on every tick
 	useEffect(() => {
@@ -105,18 +107,31 @@ const Player: React.FC = props => {
 			const intersections = getRectangleRayIntersections({
 				position: p,
 				direction: diff
-			}, 'lookAt')
-			.filter(i => i > 0 && i < 1)
+			})
+			.filter(i => i.distance > 0 && i.distance < 1)
 			.sort();
 
 			const offset = 0.05; // small offset to prevent players from being able to look through elements when very close
 
 			if (intersections.length) {
-				vec3.scale(diff, diff, (intersections[0] - offset) / distance);
+				vec3.scale(diff, diff, (intersections[0].distance - offset) / 1);
 			}
 			return vec3.add(vec3.create(), p, diff);
 		});
 	}, [directionKeys, setDirection, setPosition]);
+
+	useEffect(() => {
+		const intersections = getRectangleRayIntersections({
+			position,
+			direction
+		})
+		.filter(i => i.distance > 0)
+		.sort();
+
+		if (intersections.length) {
+			setLookAt(intersections[0].key);
+		}
+	}, [direction, direction]);
 
 	useEffect(() => {
 		const onClick = () => {
@@ -133,7 +148,9 @@ const Player: React.FC = props => {
 
 	return (
 		<Camera position={position} direction={direction} perspective={750}>
-			{props.children}
+			<LookAtContext.Provider value={lookAt}>
+				{props.children}
+			</LookAtContext.Provider>
 		</Camera>
 	);
 };

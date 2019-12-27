@@ -10,11 +10,12 @@ const right = vec3.fromValues(1, 0, 0);
 const down = vec3.fromValues(0, 1, 0);
 
 const Intersectable: React.FC<{
-    callback?: (type?: string) => void
-}> = ({ callback, ...props }) => {
+    callback?: (type?: string) => void,
+    id?: string
+}> = ({ callback, id, ...props }) => {
     const [dimensions, setDimensions] = useState([0, 0]);
     const worldTransform = useContext(TransformContext);
-    const [intersectableKey] = useState(uid('inter'));
+    const [intersectableKey] = useState(id || uid('inter'));
   
     const measuredRef = useCallback(node => {
         if (node !== null) {
@@ -38,6 +39,7 @@ const Intersectable: React.FC<{
     // only unregister when component unmounts
     useEffect(() => () => unRegister(intersectableKey), [intersectableKey]);
 
+    // maybe add a mutationObserver so dimensions changing because of a DOM change is picked up on?
     return (
         <div ref={measuredRef} className={styles.intersectable}>
             {props.children}

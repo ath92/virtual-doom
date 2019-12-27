@@ -12,6 +12,11 @@ type Ray = {
 	direction: vec3;
 };
 
+type Intersection = {
+    key: string,
+    distance: number,
+}
+
 // for now we're dealing with a very small number of walls,
 // so it doesn't make sense to optimize this to something better (e.g. quadtree)
 const intersectables = new Map<string, Intersectable>();
@@ -91,11 +96,14 @@ const getRectangleRayIntersection = (
 // expect no intersection
 
 export const getRectangleRayIntersections = (ray: Ray, type?: string) => {
-    const intersections = Array<number>();
-	intersectables.forEach(intersectable => {
+    const intersections = Array<Intersection>();
+	intersectables.forEach((intersectable, key) => {
 		const intersection = getRectangleRayIntersection(ray, intersectable);
 		if (intersection) {
-            intersections.push(intersection);
+            intersections.push({
+                distance: intersection,
+                key
+            });
             if (intersectable.callback !== undefined) {
                 intersectable.callback(type);
             }
