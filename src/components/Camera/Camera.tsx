@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './Camera.module.css';
 import { vec3, mat4 } from 'gl-matrix';
 
@@ -9,14 +9,21 @@ const Camera: React.FC<{
     direction: vec3,
     perspective: number
 }> = ({ position, direction, perspective, ...props }) => {
-    const perspectiveStyle = { perspective: `${perspective}px` };
+    //for reuse
+    const [cameraPosition] = useState(vec3.create());
+    const [sceneTransform] = useState(mat4.create());
+    const [lookAt] = useState(vec3.create());
+
     const cameraZOffset = vec3.fromValues(0, 0, -perspective);
-	const cameraPosition = vec3.add(vec3.create(), position, cameraZOffset);
-	const sceneTransform = mat4.lookAt(
-        mat4.create(),
+    const perspectiveStyle = { perspective: `${perspective}px` };
+
+    vec3.add(cameraPosition, position, cameraZOffset);
+    
+	mat4.lookAt(
+        sceneTransform,
         cameraPosition,
         vec3.add(
-            vec3.create(),
+            lookAt,
             cameraPosition,
             direction
         ),

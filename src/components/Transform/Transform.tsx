@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { mat4 } from 'gl-matrix';
 import TransformContext from '../../context/TransformContext';
 import styles from './Transform.module.css';
@@ -7,7 +7,10 @@ const Transform: React.FC<{
     value: mat4
 }> = ({ value, ...props }) => {
     const parentWorldTransform = useContext(TransformContext);
-    const worldTransform = mat4.multiply(mat4.create(), parentWorldTransform, value);
+    const [worldTransform] = useState(mat4.create()); // for reuse
+
+    mat4.multiply(worldTransform, parentWorldTransform, value);
+    
     const transformStyle = {
         transform: `matrix3d(${value.join(',')})`,
     };

@@ -16,6 +16,8 @@ const Intersectable: React.FC<{
     const [dimensions, setDimensions] = useState([0, 0]);
     const worldTransform = useContext(TransformContext);
     const [intersectableKey] = useState(id || uid('inter'));
+    // initialize vectors as state so they can be reused
+    const [[position, topSide, leftSide]] = useState([vec3.create(), vec3.create(), vec3.create()]);
   
     const measuredRef = useCallback(node => {
         if (node !== null) {
@@ -25,11 +27,11 @@ const Intersectable: React.FC<{
 
     useEffect(() => {
         // register intersectable
-        const position = vec3.transformMat4(vec3.create(), origin, worldTransform);
-        const topSide = vec3.scale(vec3.create(), right, dimensions[0]);
+        vec3.transformMat4(position, origin, worldTransform);
+        vec3.scale(topSide, right, dimensions[0]);
         vec3.transformMat4(topSide, topSide, worldTransform);
         vec3.sub(topSide, topSide, position);
-        const leftSide = vec3.scale(vec3.create(), down, dimensions[1]);
+        vec3.scale(leftSide, down, dimensions[1]);
         vec3.transformMat4(leftSide, leftSide, worldTransform);
         vec3.sub(leftSide, leftSide, position);
 
