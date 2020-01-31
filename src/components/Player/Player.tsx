@@ -130,6 +130,8 @@ const Player: React.FC = props => {
 
 		if (intersections.length) {
 			setLookAt(intersections[0].key);
+		} else {
+			setLookAt(null);
 		}
 	}, [direction, direction]);
 

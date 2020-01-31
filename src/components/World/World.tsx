@@ -11,7 +11,7 @@ const World: React.FC = () => {
 		<>
             <Maze></Maze>
 			<div className={styles.floor} />
-			<Button position={vec3.fromValues(0, 0, -500)}>heya</Button>
+			<Button position={vec3.fromValues(0, 0, -500)} yRotation={0.5}>heya</Button>
 			{/* <Wall position={vec3.fromValues(1000, 0, 0)} yRotation={0}>
 				<Wall position={vec3.fromValues(0, 0, 0)} yRotation={degToRad(90)} />
 			</Wall>
