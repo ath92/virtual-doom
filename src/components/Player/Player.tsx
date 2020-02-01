@@ -19,7 +19,7 @@ const rotateRight = mat4.fromYRotation(mat4.create(), -0.5 * Math.PI);
 
 const Player: React.FC = props => {
 	const [position, setPosition] = useState(vec3.fromValues(0, 0, 0));
-	const [direction, setDirection] = useState(vec3.fromValues(0, 0, 1)); // start with forward, will be changed on mousemove
+	const [direction, setDirection] = useState(vec3.fromValues(0, 0, 1));
 	// refs for mousePosition and directionKeys so that updating doesn't cause re-render (re-render in rAF loop instead)
 	const directionKeys = useRef({
 		forward: false,
@@ -84,14 +84,7 @@ const Player: React.FC = props => {
 		vec3.rotateY(newDirection, newDirection, origin, -mousePosition.current[0] * mouseSensitivity);
 		setDirection(newDirection);
 
-		if (!directionKeys.current.forward
-			&& !directionKeys.current.backward
-			&& !directionKeys.current.left
-			&& !directionKeys.current.right) {
-			return; // return early here, we only need to update looking position.
-		}
-
-		const deltaPosition = vec3.clone(newDirection);
+		const deltaPosition = vec3.fromValues(newDirection[0], 0, newDirection[2]);
 		vec3.scale(deltaPosition, deltaPosition, speed);
 
 		// strafing with keys
@@ -103,7 +96,6 @@ const Player: React.FC = props => {
 		
 		setPosition(p => {
 			// before updating position, check if we're going through a wall
-			const distance = vec3.len(diff);
 			const intersections = getRectangleRayIntersections({
 				position: p,
 				direction: diff
