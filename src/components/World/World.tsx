@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import Wall from '../Wall/Wall';
 import Button from '../Button/Button';
 import { vec3 } from 'gl-matrix';
@@ -7,10 +7,8 @@ import { degToRad } from '../../util/radDeg';
 import Rotate from '../Transform/Rotate';
 import Translate from '../Transform/Translate';
 import statue from './statue.png';
-import slidingDoor from './sliding-door.png';
-import useTick from '../../hooks/useTick';
-import Intersectable from '../Intersectable/Intersectable';
-import Youtube from 'react-youtube';
+import SlidingDoor from './SlidingDoor/SlidingDoor';
+import Television from './Television/Television';
 
 // magic numbers everywhere in this file so it's easier to iterate
 
@@ -40,73 +38,6 @@ const Statue: React.FC = () => {
 			</Rotate>
 		</Translate>
 	);
-}
-
-const SlidingDoor: React.FC = () => {
-	const [x, setX] = useState(0);
-	const [isOpen, setIsOpen] = useState(false);
-
-	const targetThreshold = 2; // rounding
-
-	const toggleOpen = (intersectionType?: string) => {
-		if (intersectionType === 'click') {
-			setIsOpen(!isOpen);
-		}
-	}
-	
-	useTick(() => {
-		const target = isOpen ? 1000 : 0;
-		if (Math.abs(x - target) < targetThreshold) {
-			setX(target);
-			return;
-		}
-		setX(x + (target - x) / 5);
-	});
-
-	return (
-		<Translate x={x}>
-			<Intersectable callback={toggleOpen} id="door">
-				<img src={slidingDoor} width="1000" height="1000" />
-			</Intersectable>
-		</Translate>
-	)
-}
-
-const Television: React.FC = () => {
-	const [player, setPlayer] = useState<{ playVideo: () => void, pauseVideo: () => void } | null>(null);
-	const [isPlaying, setIsPlaying] = useState(false);
-	
-	const styles = { 
-		width: `500px`,
-		height: `320px`
-	};
-
-	const onReady = useCallback(e => {
-		setPlayer(e.target);
-	}, [setPlayer]);
-
-	const onIntersection = useCallback((type?: string) => {
-		if (type === 'click' && player !== null) {
-			if (isPlaying) {
-				player.pauseVideo();
-			} else {
-				player.playVideo();
-			}
-			setIsPlaying(!isPlaying);
-		}
-	}, [player, setIsPlaying, isPlaying]);
-
-	return (
-		<Intersectable callback={onIntersection} id="video">
-			<div style={styles}>
-				<Youtube
-					videoId="Lom9NVzOnKI"
-					opts={{ ...styles }}
-					onReady={onReady}
-				></Youtube>
-			</div>
-		</Intersectable>
-	)
 }
 
 const World: React.FC = () => {
