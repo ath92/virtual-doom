@@ -1,6 +1,6 @@
 import React from 'react';
 import Transform from './Transform';
-import { vec3, mat4, quat } from 'gl-matrix';
+import { mat4, quat } from 'gl-matrix';
 
 // Euler rotations
 const Rotate: React.FC<{

@@ -118,14 +118,13 @@ const Player: React.FC = props => {
 			direction
 		})
 		.filter(i => i.distance > 0)
-		.sort();
 
 		if (intersections.length) {
 			setLookAt(intersections[0].key);
 		} else {
 			setLookAt(null);
 		}
-	}, [direction, direction]);
+	}, [direction, position]);
 
 	useEffect(() => {
 		const onClick = () => {

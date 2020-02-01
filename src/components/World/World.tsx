@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import Wall from '../Wall/Wall';
 import Button from '../Button/Button';
 import { vec3 } from 'gl-matrix';
@@ -10,6 +10,7 @@ import statue from './statue.png';
 import slidingDoor from './sliding-door.png';
 import useTick from '../../hooks/useTick';
 import Intersectable from '../Intersectable/Intersectable';
+import Youtube from 'react-youtube';
 
 // magic numbers everywhere in this file so it's easier to iterate
 
@@ -71,6 +72,43 @@ const SlidingDoor: React.FC = () => {
 	)
 }
 
+const Television: React.FC = () => {
+	const [player, setPlayer] = useState<{ playVideo: () => void, pauseVideo: () => void } | null>(null);
+	const [isPlaying, setIsPlaying] = useState(false);
+	
+	const styles = { 
+		width: `500px`,
+		height: `320px`
+	};
+
+	const onReady = useCallback(e => {
+		setPlayer(e.target);
+	}, [setPlayer]);
+
+	const onIntersection = useCallback((type?: string) => {
+		if (type === 'click' && player !== null) {
+			if (isPlaying) {
+				player.pauseVideo();
+			} else {
+				player.playVideo();
+			}
+			setIsPlaying(!isPlaying);
+		}
+	}, [player, setIsPlaying, isPlaying]);
+
+	return (
+		<Intersectable callback={onIntersection} id="video">
+			<div style={styles}>
+				<Youtube
+					videoId="Lom9NVzOnKI"
+					opts={{ ...styles }}
+					onReady={onReady}
+				></Youtube>
+			</div>
+		</Intersectable>
+	)
+}
+
 const World: React.FC = () => {
 	return (
 		<Translate y={-700}>
@@ -94,6 +132,12 @@ const World: React.FC = () => {
 			</Translate>
 
 			<Statue />
+
+			<Translate z={-3999} y={500}>
+				<Television />
+			</Translate>
+
+
 		</Translate>
 	);
 };

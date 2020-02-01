@@ -102,12 +102,16 @@ export const getRectangleRayIntersections = (ray: Ray, type?: string) => {
 		if (intersection) {
             intersections.push({
                 distance: intersection,
-                key
+                key,
             });
-            if (intersectable.callback !== undefined) {
-                intersectable.callback(type);
-            }
 		}
-	});
+    });
+    intersections.sort((a, b) => a.distance > 0 && a.distance < b.distance ? -1 : 1);
+    if (intersections.length) {
+        const first = intersectables.get(intersections[0].key);
+        if (first && first.callback) {
+            first.callback(type);
+        }
+    }
 	return intersections;
 };

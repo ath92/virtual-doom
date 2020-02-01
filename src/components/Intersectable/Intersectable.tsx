@@ -36,7 +36,7 @@ const Intersectable: React.FC<{
         vec3.sub(leftSide, leftSide, position);
 
         register(intersectableKey, { position, leftSide, topSide, callback });
-    }, [dimensions, worldTransform, intersectableKey, callback]);
+    }, [dimensions, worldTransform, intersectableKey, callback, position, topSide, leftSide]);
 
     // only unregister when component unmounts
     useEffect(() => () => unRegister(intersectableKey), [intersectableKey]);
