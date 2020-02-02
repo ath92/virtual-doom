@@ -1,20 +1,24 @@
 import { useEffect } from 'react';
+import getUid from '../util/uid';
 
-let callbacks = Array<() => void>();
+type UseTickCallback = (stopCallback: () => boolean) => void;
+
+let callbacks = new Map<string, UseTickCallback>();
 
 const loop = () => {
-	callbacks.forEach(c => c());
+	callbacks.forEach((c, key) => c(() => callbacks.delete(key)));
 	requestAnimationFrame(loop);
 };
 
 loop();
 
-const useTick = (callback: () => void) => {
+const useTick = (callback: UseTickCallback) => {
+	const key = getUid('tick');
 	useEffect(() => {
-		callbacks.push(callback);
+		callbacks.set(key, callback);
 		return () => {
-			callbacks = callbacks.filter(c => c !== callback);
-		};
+			callbacks.delete(key);
+		}
 	}, [callback]);
 };
 

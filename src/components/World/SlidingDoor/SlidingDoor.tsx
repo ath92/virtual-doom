@@ -4,7 +4,9 @@ import Translate from '../../Transform/Translate';
 import Intersectable from '../../Intersectable/Intersectable';
 import slidingDoor from './sliding-door.png';
 
-const SlidingDoor: React.FC = () => {
+const SlidingDoor: React.FC<{
+    width?: number
+}> = ({ width = 1000 }) => {
 	const [x, setX] = useState(0);
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -15,20 +17,21 @@ const SlidingDoor: React.FC = () => {
 			setIsOpen(!isOpen);
 		}
 	}
-	
-	useTick(() => {
-		const target = isOpen ? 1000 : 0;
-		if (Math.abs(x - target) < targetThreshold) {
-			setX(target);
-			return;
-		}
-		setX(x + (target - x) / 5);
-	});
+
+    useTick((stopTick) => {
+        const target = isOpen ? width : 0;
+        if (Math.abs(x - target) < targetThreshold) {
+            setX(target);
+            stopTick();
+            return;
+        }
+        setX(x + (target - x) / 5);
+    });
 
 	return (
 		<Translate x={x}>
 			<Intersectable callback={toggleOpen} id="door">
-				<img src={slidingDoor} width="1000" height="1000" />
+				<img src={slidingDoor} width={width} height="1000" />
 			</Intersectable>
 		</Translate>
 	)

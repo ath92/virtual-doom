@@ -15,11 +15,11 @@ import Television from './Television/Television';
 const Floor: React.FC = () => {
 	return (
 		<Translate y={1000}>
-			<Rotate x={-90}>
+			<Rotate x={90}>
 			{
 				Array(5).fill(0).map((i, x) => (
 					Array(12).fill(0).map((j, y) => (
-						<Translate x={x * 400 - 1000} y={y * 400} key={`${x}${y}`}>
+						<Translate x={x * 400 - 1000} y={y * -400} key={`${x}${y}`}>
 							<div className={styles.floor}></div>
 						</Translate>
 					))
@@ -46,29 +46,33 @@ const World: React.FC = () => {
 			<Floor />
 			<Button position={vec3.fromValues(0, 0, -500)} yRotation={0.5}>heya</Button>
 			{/* right wall */}
-			<Wall position={vec3.fromValues(1000, 0, 0)} yRotation={degToRad(90)} length={1000} />
-			<Wall position={vec3.fromValues(1000, 0, -1000)} yRotation={degToRad(90)} length={1000} />
-			<Wall position={vec3.fromValues(1000, 0, -2000)} yRotation={degToRad(90)} length={1000} />
-			<Wall position={vec3.fromValues(1000, 0, -3000)} yRotation={degToRad(90)} length={1000} />
+			<Wall position={vec3.fromValues(1000, 0, -1000)} yRotation={degToRad(-90)} length={1000} />
+			<Wall position={vec3.fromValues(1000, 0, -2000)} yRotation={degToRad(-90)} length={1000} />
+			<Wall position={vec3.fromValues(1000, 0, -3000)} yRotation={degToRad(-90)} length={1000} />
+			<Wall position={vec3.fromValues(1000, 0, -4000)} yRotation={degToRad(-90)} length={1000} />
 			{/* left wall */}
 			<Wall position={vec3.fromValues(-1000, 0, 0)} yRotation={degToRad(90)} length={1000} />
 			<Wall position={vec3.fromValues(-1000, 0, -1000)} yRotation={degToRad(90)} length={1000} />
 			<Wall position={vec3.fromValues(-1000, 0, -2000)} yRotation={degToRad(90)} length={1000} />
 			<Wall position={vec3.fromValues(-1000, 0, -3000)} yRotation={degToRad(90)} length={1000} />
 
-			{/* Back wall */}
-			<Wall position={vec3.fromValues(0, 0, -3000)} length={1000} />
+			{/* Middle wall */}
+			<Wall position={vec3.fromValues(-400, 0, -3000)} length={1400} />
 			<Translate z={-2999} x={-1000}>
-				<SlidingDoor />
+				<SlidingDoor width={600} />
 			</Translate>
 
 			<Statue />
 
-			<Translate z={-3999} y={500}>
-				<Television />
+			<Translate z={-3799} y={500}>
+				<Rotate y={-60}>
+					<Television />
+				</Rotate>
 			</Translate>
 
-
+			{/* Back wall */}
+			<Wall position={vec3.fromValues(-1000, 0, -4000)} length={1000} />
+			<Wall position={vec3.fromValues(0, 0, -4000)} length={1000} />
 		</Translate>
 	);
 };

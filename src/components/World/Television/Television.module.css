@@ -1,0 +1,24 @@
+.side {
+    background-image: url('./tv-side.png');
+    background-size: 320px;
+    width: 320px;
+    height: 320px;
+}
+
+.back {
+    background-color: #ccc;
+    height: 240px;
+    width: 500px;
+}
+
+.furniture{
+    background-image: url('./tv-furniture.png');
+    background-size: 100%;
+    width: 500px;
+    height: 320px;
+}
+
+.furnitureSide {
+    width: 320px;
+}
+

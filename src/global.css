@@ -1,3 +1,4 @@
 div {
     position: absolute;
+    transform-style: preserve-3d;
 }

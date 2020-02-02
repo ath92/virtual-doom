@@ -99,14 +99,14 @@ export const getRectangleRayIntersections = (ray: Ray, type?: string) => {
     const intersections = Array<Intersection>();
 	intersectables.forEach((intersectable, key) => {
 		const intersection = getRectangleRayIntersection(ray, intersectable);
-		if (intersection) {
+		if (intersection && intersection > 0) {
             intersections.push({
                 distance: intersection,
                 key,
             });
 		}
     });
-    intersections.sort((a, b) => a.distance > 0 && a.distance < b.distance ? -1 : 1);
+    intersections.sort((a, b) => a.distance < b.distance ? -1 : 1);
     if (intersections.length) {
         const first = intersectables.get(intersections[0].key);
         if (first && first.callback) {
