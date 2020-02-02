@@ -4,11 +4,9 @@ import { vec3, mat4 } from 'gl-matrix';
 import { getRectangleRayIntersections } from '../../collision/collision';
 import Camera from '../Camera/Camera';
 import LookAtContext from '../../context/LookAtContext';
+import styles from './Player.module.css';
 
 // TODO: clean up maths in here
-
-// This is based off of the perspective css property, basically controls FOV
-// , but also the depth of the view frustum, so it's important to reuse this when computing the transformOrigin
 const speed = 30;
 const mouseSensitivity = 0.0015;
 
@@ -19,7 +17,7 @@ const rotateRight = mat4.fromYRotation(mat4.create(), -0.5 * Math.PI);
 
 const Player: React.FC = props => {
 	const [position, setPosition] = useState(vec3.fromValues(0, 0, 0));
-	const [direction, setDirection] = useState(vec3.fromValues(0, 0, 1));
+	const [direction, setDirection] = useState(vec3.fromValues(0, 0, -1));
 	// refs for mousePosition and directionKeys so that updating doesn't cause re-render (re-render in rAF loop instead)
 	const directionKeys = useRef({
 		forward: false,
@@ -36,10 +34,10 @@ const Player: React.FC = props => {
 		const setDirectionKey = (keyboardEvent: KeyboardEvent) => {
 			const { code, type } = keyboardEvent;
 			const value = type === 'keydown';
-			if (code === 'KeyW') directionKeys.current.forward = value;
-			if (code === 'KeyS') directionKeys.current.backward = value;
-			if (code === 'KeyA') directionKeys.current.left = value;
-			if (code === 'KeyD') directionKeys.current.right = value;
+			if (code === 'KeyW' || code === 'ArrowUp') directionKeys.current.forward = value;
+			if (code === 'KeyS' || code === 'ArrowDown') directionKeys.current.backward = value;
+			if (code === 'KeyA' || code === 'ArrowLeft') directionKeys.current.left = value;
+			if (code === 'KeyD' || code === 'ArrowRight') directionKeys.current.right = value;
 		};;
 		window.addEventListener('keydown', setDirectionKey);
 		window.addEventListener('keyup', setDirectionKey);
@@ -68,7 +66,10 @@ const Player: React.FC = props => {
 			setHasPointerLock(!!document.pointerLockElement);
 		};
 		const body = document.querySelector('body') as HTMLBodyElement;
-		const requestPointerLock = () => body.requestPointerLock();
+		const requestPointerLock = (e: MouseEvent) => {
+			if ((e.target as Element).nodeName === 'A') return;
+			body.requestPointerLock();
+		}
 		document.addEventListener('mousedown', requestPointerLock);
 		document.addEventListener('pointerlockchange', onPointerLockChange, false);
 		return () => {
@@ -79,6 +80,7 @@ const Player: React.FC = props => {
 
 	// update direction based on mouse position, position based on direction
 	const updatePosition = useCallback(() => {
+		if (!hasPointerLock) return;
 		const newDirection = vec3.clone(forward);
 		vec3.rotateX(newDirection, newDirection, origin, mousePosition.current[1] * mouseSensitivity);
 		vec3.rotateY(newDirection, newDirection, origin, -mousePosition.current[0] * mouseSensitivity);
@@ -110,7 +112,7 @@ const Player: React.FC = props => {
 			}
 			return vec3.add(vec3.create(), p, diff);
 		});
-	}, [directionKeys, setDirection, setPosition]);
+	}, [directionKeys, setDirection, setPosition, hasPointerLock]);
 
 	useEffect(() => {
 		const intersections = getRectangleRayIntersections({
@@ -140,11 +142,25 @@ const Player: React.FC = props => {
 	useTick(updatePosition);
 
 	return (
-		<Camera position={position} direction={direction} perspective={750}>
-			<LookAtContext.Provider value={lookAt}>
-				{props.children}
-			</LookAtContext.Provider>
-		</Camera>
+		<>
+			{
+				!hasPointerLock ? 
+				<div className={styles.intro}>
+					Click anywhere to start. <br />
+					Move your cursor to look around. <br />
+					Use WASD or the arrow keys to walk around. <br />
+					Works best in Firefox at time of writing. <br />
+					<a href="https://github.com/ath92/virtual-doom" target="_blank">GitHub</a>
+				</div>
+				: null
+			}
+			
+			<Camera position={position} direction={direction} perspective={750}>
+				<LookAtContext.Provider value={lookAt}>
+					{props.children}
+				</LookAtContext.Provider>
+			</Camera>
+		</>
 	);
 };
 

@@ -1,9 +1,9 @@
 import { vec3 } from 'gl-matrix';
 
-type Intersectable = {
-	position: vec3;
-    topSide: vec3;
-    leftSide: vec3;
+type Intersectable = { // intersectable rectangle
+	position: vec3; // top left corner
+    topSide: vec3; // top right corner
+    leftSide: vec3; // bottom left corner
     callback?: (type?: string) => void
 };
 
@@ -17,7 +17,7 @@ type Intersection = {
     distance: number,
 }
 
-// for now we're dealing with a very small number of walls,
+// for now we're dealing with a very small number of intersectables,
 // so it doesn't make sense to optimize this to something better (e.g. quadtree)
 const intersectables = new Map<string, Intersectable>();
 
@@ -49,7 +49,7 @@ const getRectangleRayIntersection = (
         const P = vec3.create();
         const P0P = vec3.create();
         const PP = vec3.create();
-        return (ray: Ray, intersectable: Intersectable): (number | null) => {
+        return (ray: Ray, intersectable: Intersectable): number => {
             vec3.subtract(P0MinusR0, intersectable.position, ray.position);
             vec3.cross(N, intersectable.topSide, intersectable.leftSide);
             const DDotN = vec3.dot(ray.direction, N);
@@ -64,7 +64,7 @@ const getRectangleRayIntersection = (
             const Q1 = projectOnto(intersectable.leftSide, P0P);
             const Q2 = projectOnto(intersectable.topSide, P0P);
 
-            if (!Q1 || !Q2) return null;
+            if (!Q1 || !Q2) return -1;
 
             const Q1Length = vec3.length(Q1);
             const Q2Length = vec3.length(Q2);
@@ -76,7 +76,7 @@ const getRectangleRayIntersection = (
                 return t;
             }
 
-            return null;
+            return -1;
         };
     }
 )();
@@ -99,7 +99,8 @@ export const getRectangleRayIntersections = (ray: Ray, type?: string) => {
     const intersections = Array<Intersection>();
 	intersectables.forEach((intersectable, key) => {
 		const intersection = getRectangleRayIntersection(ray, intersectable);
-		if (intersection && intersection > 0) {
+		if (intersection > 0) {
+            // TODO: instead of sorting later, push items in the right spot
             intersections.push({
                 distance: intersection,
                 key,
