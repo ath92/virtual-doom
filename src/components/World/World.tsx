@@ -44,7 +44,7 @@ const World: React.FC = () => {
 	return (
 		<Translate y={-700}>
 			<Floor />
-			<Button position={vec3.fromValues(0, 0, -500)} yRotation={0.5}>heya</Button>
+			{/* <Button position={vec3.fromValues(0, 0, -500)} yRotation={0.5}>heya</Button> */}
 			{/* right wall */}
 			<Wall position={vec3.fromValues(1000, 0, -1000)} yRotation={degToRad(-90)} length={1000} />
 			<Wall position={vec3.fromValues(1000, 0, -2000)} yRotation={degToRad(-90)} length={1000} />

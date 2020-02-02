@@ -38,7 +38,7 @@ const Player: React.FC = props => {
 			if (code === 'KeyS' || code === 'ArrowDown') directionKeys.current.backward = value;
 			if (code === 'KeyA' || code === 'ArrowLeft') directionKeys.current.left = value;
 			if (code === 'KeyD' || code === 'ArrowRight') directionKeys.current.right = value;
-		};;
+		};
 		window.addEventListener('keydown', setDirectionKey);
 		window.addEventListener('keyup', setDirectionKey);
 		return () => {
