@@ -149,7 +149,6 @@ const Player: React.FC = props => {
 					Click anywhere to start. <br />
 					Move your cursor to look around. <br />
 					Use WASD or the arrow keys to walk around. <br />
-					Works best in Firefox at time of writing. <br />
 					<a href="https://github.com/ath92/virtual-doom" target="_blank">GitHub</a>
 				</div>
 				: null
